@@ -1,16 +1,20 @@
 from nicegui import ui
 #from aws_details_tab import setup_aws_details_tab
 from aws_details_tab import AwsDetailsForm
-from search_and_details import setup_search_and_project_details
+from search_and_details import setup_project_dropdown
+from network_details_tab import NetworkDetailsForm
+import requests
+
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 aws_details_form = AwsDetailsForm()
-setup_search_and_project_details()
+network_details_form = NetworkDetailsForm()
 
 form_data = {}
 with ui.splitter(value=10).classes('w-full h-full') as splitter:
     with splitter.before:
         with ui.tabs().props('vertical').classes('w-full') as tabs:
-            general_info = ui.tab('General Information', icon='info')
+            #general_info = ui.tab('General Information', icon='info')
             aws_details = ui.tab('AWS Details', icon='cloud')
             network_info = ui.tab('Network Information', icon='router')
             server_details = ui.tab('Server Details', icon='dns')
@@ -23,12 +27,7 @@ with ui.splitter(value=10).classes('w-full h-full') as splitter:
             # Add more tabs as needed...
 
     with splitter.after:
-        with ui.tab_panels(tabs, value=general_info).props('vertical').classes('w-full h-full'):
-            with ui.tab_panel(general_info):
-                ui.label('General Information').classes('text-h4')
-                ui.input('Project Name')
-                ui.input('Description')
-                # Add more input fields for General Information...
+        with ui.tab_panels(tabs, value=aws_details).props('vertical').classes('w-full h-full'):
 
             with ui.tab_panel(aws_details):
                 ui.label('AWS Account').classes('text-h4')
@@ -37,10 +36,9 @@ with ui.splitter(value=10).classes('w-full h-full') as splitter:
 
             with ui.tab_panel(network_info):
                 ui.label('Network Information').classes('text-h4')
-                ui.input('VPC ID')
-                ui.input('Subnet IDs')
-                # Add more input fields for Network Information...
+                network_details_form.setup_network_details_tab()
+                ui.button('Save Details', on_click=network_details_form.update_network_details)
 
             # Define more tab panels for other tabs...
 
-ui.run(title='Project Kickoff UI')
+ui.run(title='Project Kickoff UI', port=8082)
